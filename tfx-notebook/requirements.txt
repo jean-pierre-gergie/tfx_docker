@@ -1,0 +1,41 @@
+# ===== Core TFX stack (pinned to the 1.16 matrix) =====
+tfx==1.16.0
+tensorflow==2.16.1
+apache-beam==2.59.0
+ml-metadata==1.16.0
+tensorflow-data-validation==1.16.1
+tensorflow-transform==1.16.0
+tensorflow-model-analysis==0.47.0
+tensorflow-serving-api==2.16.1
+# TFX shared libs (usually pulled transitively, pinned explicitly for stability)
+tfx-bsl==1.16.1
+tensorflow-metadata==1.16.1
+
+# ===== Notebook (pick Notebook OR JupyterLab — we use Notebook here) =====
+notebook==7.2.2
+# jupyterlab==4.2.5
+
+# ===== Scientific stack (versions compatible with TF 2.16 + TFX 1.16) =====
+# NumPy <2.0 is required for TF 2.16 wheels; 1.26.4 is the common stable.
+numpy==1.26.4
+# Pandas in the 2.1–2.2 range; 2.2.2 is stable and widely used.
+pandas==2.2.2
+# TFX 1.16 expects PyArrow 10.x
+pyarrow==10.0.1
+
+# ===== IO / Extras =====
+pymongo==4.7.3
+# PySpark 3.5.x requires Java 17; we install OpenJDK 17 in the Dockerfile
+pyspark==3.5.3
+
+# ===== ML toolkit =====
+# scikit-learn within the allowed window (>=1.4,<1.6)
+scikit-learn==1.5.2
+
+# ONNX toolchain pinned within your requested ranges
+onnx==1.16.0           # (>=1.15,<1.17)
+skl2onnx==1.17.0       # (>=1.16,<1.18)
+onnxruntime==1.19.2    # (>=1.17,<1.20)
+
+# ===== Jupyter HTTP client fix =====
+httpx==0.27.2
