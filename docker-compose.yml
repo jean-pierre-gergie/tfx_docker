@@ -74,7 +74,6 @@ services:
     container_name: tfx-notebook
     ports:
       - "8888:8888"   # Jupyter
-      - "6006:6006"   # TensorBoard (optional)
     command:
       - jupyter
       - lab
@@ -93,9 +92,17 @@ services:
       - ./notebooks:/workspace
       - ./pipeline:/workspace/pipeline
       - ./data:/data
-      - artifacts:/artifacts
-      - metadata:/metadata
+      - ./artifacts:/artifacts
+      - ./metadata:/metadata
     networks: [tfxnet]
+  tensorboard:
+    build: ./tfx-tensorboard    # folder containing the Dockerfile above
+    ports:
+      - "6006:6006"
+    networks: [tfxnet]
+    volumes:
+      - ./artifacts:/artifacts
+    depends_on: [tfx-notebook]
 
 volumes:
   artifacts:
