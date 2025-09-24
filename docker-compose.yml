@@ -1,0 +1,60 @@
+version: "3.9"
+
+services:
+  spark-master:
+    build:
+      context: ./spark
+      dockerfile: Dockerfile
+    container_name: spark-master
+    hostname: spark-master
+    command: ["master"]
+    ports:
+      - "7077:7077"   # Spark master RPC
+      - "8080:8080"   # Master Web UI
+    volumes:
+      - ./data:/data
+      # - /var/run/docker.sock:/var/run/docker.sock
+
+  spark-worker:
+    build:
+      context: ./spark
+      dockerfile: Dockerfile
+    container_name: spark-worker
+    hostname: spark-worker
+    command: ["worker"]
+    environment:
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_CORES=2
+      - SPARK_WORKER_MEMORY=2g
+    ports:
+      - "8081:8081"   # Worker Web UI
+    depends_on:
+      - spark-master
+    volumes:
+      - ./data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+  beam-jobserver:
+      build:
+        context: ./beam-jobserver
+        dockerfile: Dockerfile
+      image: local/beam-spark3-jobserver:2.59.0
+      depends_on:
+        - spark-master
+      environment:
+        # Leave defaults or override here:
+        SPARK_MASTER_URL: spark://spark-master:7077
+        JOB_PORT: 8099
+        ARTIFACT_PORT: 8098
+        EXPANSION_PORT: 8097
+        ARTIFACTS_DIR: /opt/apache/beam/artifacts
+      ports:
+        - "8099:8099"   # job endpoint
+        - "8098:8098"   # artifact endpoint
+        - "8097:8097"   # expansion service
+      volumes:
+        - ./data:/data
+        - beam_artifacts:/opt/apache/beam/artifacts
+      restart: unless-stopped
+
+volumes:
+  beam_artifacts:
