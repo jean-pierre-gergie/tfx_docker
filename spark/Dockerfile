@@ -17,7 +17,12 @@ RUN set -eux; \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
       curl ca-certificates tini bash procps gosu; \
     rm -rf /var/lib/apt/lists/*
-
+# ---- Docker CLI (needed for Beam environment_type=DOCKER) ----
+RUN set -eux; \
+    apt-get update; \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends docker.io; \
+    rm -rf /var/lib/apt/lists/*; \
+    docker --version
 # ---- Download + verify Spark (checksum fix) ----
 WORKDIR /opt
 RUN set -eux; \
@@ -60,6 +65,11 @@ spark.eventLog.dir                 file:/opt/spark/logs
 spark.history.fs.logDirectory      file:/opt/spark/logs
 spark.worker.cleanup.enabled       true
 spark.worker.cleanup.appDataTtl    604800
+
+# Beam SDK harness needs Docker access + same network namespace
+spark.executorEnv.DOCKER_HOST=unix:///var/run/docker.sock
+spark.executorEnv.BEAM_DOCKER_NETWORK=container:spark-worker
+spark.executorEnv.DOCKER_EXTRA_ARGS=--network=container:spark-worker
 EOF
 RUN chown -R spark:spark "${SPARK_HOME}/conf"
 

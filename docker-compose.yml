@@ -26,8 +26,11 @@ services:
       - SPARK_MASTER_URL=spark://spark-master:7077
       - SPARK_WORKER_CORES=2
       - SPARK_WORKER_MEMORY=2g
+      - DOCKER_MAC_CONTAINER=true
+      - DOCKER_NETWORK=tfx-docker-scratch_default
     ports:
       - "8081:8081"   # Worker Web UI
+    user: "0:0"
     depends_on:
       - spark-master
     volumes:
@@ -44,9 +47,11 @@ services:
         # Leave defaults or override here:
         SPARK_MASTER_URL: spark://spark-master:7077
         JOB_PORT: 8099
+        JOB_HOST: beam-jobserver 
         ARTIFACT_PORT: 8098
         EXPANSION_PORT: 8097
-        ARTIFACTS_DIR: /opt/apache/beam/artifacts
+        ARTIFACTS_DIR: /opt/apache/beam/artifacts 
+        DOCKER_NETWORK: tfx-docker-scratch_default
       ports:
         - "8099:8099"   # job endpoint
         - "8098:8098"   # artifact endpoint
