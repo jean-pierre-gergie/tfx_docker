@@ -1,4 +1,3 @@
-
 FROM eclipse-temurin:11-jre
 
 # ---- Pinned versions  ----
@@ -68,7 +67,10 @@ spark.worker.cleanup.appDataTtl    604800
 
 # Beam SDK harness needs Docker access + same network namespace
 spark.executorEnv.DOCKER_HOST=unix:///var/run/docker.sock
-spark.executorEnv.BEAM_DOCKER_NETWORK=container:spark-worker
+spark.executorEnv.DOCKER_NETWORK=container:spark-worker
+# --- CHANGED: explicitly signal Mac container mode (harmless elsewhere)
+spark.executorEnv.DOCKER_MAC_CONTAINER=true
+# --- CHANGED: clear DOCKER_EXTRA_ARGS (was --network=container:spark-worker)
 spark.executorEnv.DOCKER_EXTRA_ARGS=--network=container:spark-worker
 EOF
 RUN chown -R spark:spark "${SPARK_HOME}/conf"

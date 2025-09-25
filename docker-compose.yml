@@ -1,5 +1,10 @@
 version: "3.9"
 
+networks:
+  tfxnet:
+    name: tfxnet
+    driver: bridge
+
 services:
   spark-master:
     build:
@@ -14,6 +19,9 @@ services:
     volumes:
       - ./data:/data
       # - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      tfxnet:
+        aliases: [spark-master]
 
   spark-worker:
     build:
@@ -27,12 +35,15 @@ services:
       - SPARK_WORKER_CORES=2
       - SPARK_WORKER_MEMORY=2g
       - DOCKER_MAC_CONTAINER=true
-      - DOCKER_NETWORK=tfx-docker-scratch_default
+      - DOCKER_NETWORK=tfxnet
     ports:
       - "8081:8081"   # Worker Web UI
     user: "0:0"
     depends_on:
       - spark-master
+    networks:
+      tfxnet:
+        aliases: [spark-worker]
     volumes:
       - ./data:/data
       - /var/run/docker.sock:/var/run/docker.sock
@@ -41,6 +52,8 @@ services:
         context: ./beam-jobserver
         dockerfile: Dockerfile
       image: local/beam-spark3-jobserver:2.59.0
+      container_name: beam-jobserver   
+      hostname: beam-jobserver
       depends_on:
         - spark-master
       environment:
@@ -51,7 +64,8 @@ services:
         ARTIFACT_PORT: 8098
         EXPANSION_PORT: 8097
         ARTIFACTS_DIR: /opt/apache/beam/artifacts 
-        DOCKER_NETWORK: tfx-docker-scratch_default
+        DOCKER_NETWORK: tfxnet    
+
       ports:
         - "8099:8099"   # job endpoint
         - "8098:8098"   # artifact endpoint
@@ -60,6 +74,9 @@ services:
         - ./data:/data
         - beam_artifacts:/opt/apache/beam/artifacts
       restart: unless-stopped
+      networks:
+        tfxnet:
+          aliases: [beam-jobserver]
 
 volumes:
   beam_artifacts:

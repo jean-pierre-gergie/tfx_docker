@@ -39,6 +39,8 @@ CLASSPATH="${BEAM_HOME}/jars/*"
 
 # ---- Run ----
 log "Starting SparkJobServerDriver..."
+log "Resolved default env: type=DOCKER config=${JOB_EXTRA_ARGS#*--default-environment-config=}"
+
 exec java -cp "${CLASSPATH}" \
   org.apache.beam.runners.spark.SparkJobServerDriver \
   --spark-master-url "${SPARK_MASTER_URL}" \
@@ -46,5 +48,4 @@ exec java -cp "${CLASSPATH}" \
   --job-port "${JOB_PORT}" \
   --artifact-port "${ARTIFACT_PORT}" \
   --expansion-port "${EXPANSION_PORT}" \
-  --artifacts-dir "${ARTIFACTS_DIR}" \
-  ${JOB_EXTRA_ARGS}
+  --artifacts-dir "${ARTIFACTS_DIR}" 

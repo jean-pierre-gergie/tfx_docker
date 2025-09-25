@@ -3,6 +3,14 @@ set -euo pipefail
 
 mode="${1:-master}"
 
+echo "[spark entrypoint] Effective env:"
+echo "  SPARK_MASTER_HOST=${SPARK_MASTER_HOST}"
+echo "  SPARK_MASTER_PORT=${SPARK_MASTER_PORT}"
+echo "  SPARK_WORKER_PORT=${SPARK_WORKER_PORT}"
+echo "  DOCKER_HOST=${DOCKER_HOST-}"
+echo "  DOCKER_NETWORK=${DOCKER_NETWORK-}"
+echo "  DOCKER_MAC_CONTAINER=${DOCKER_MAC_CONTAINER-}"
+
 if [[ "$mode" == "master" ]]; then
   exec "${SPARK_HOME}/bin/spark-class" \
     org.apache.spark.deploy.master.Master \
