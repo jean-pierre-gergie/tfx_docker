@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  tfx-notebook:
+    build:
+      context: ./tfx-beam
+      dockerfile: Dockerfile
+    container_name: tfx-notebook
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./workspace:/workspace
+    command: >
+      bash -lc "conda run -n tfx-spark-env jupyter lab
+      --no-browser --ip=0.0.0.0
+      --NotebookApp.token='' --NotebookApp.password=''
+      --ServerApp.root_dir=/workspace"
